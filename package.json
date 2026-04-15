@@ -1,0 +1,16 @@
+{
+  "name": "thomas-crm",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail \"npm --workspace=backend run dev\" \"npm --workspace=frontend run dev\"",
+    "build": "npm --workspace=frontend run build && npm --workspace=backend run build",
+    "start": "npm --workspace=backend run start",
+    "db:push": "npm --workspace=backend run db:push",
+    "db:studio": "npm --workspace=backend run db:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

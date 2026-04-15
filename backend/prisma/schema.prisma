@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id         String     @id @default(cuid())
+  firstName  String
+  lastName   String
+  email      String     @unique
+  phone      String?
+  company    String?
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  emails     Email[]
+  activities Activity[]
+
+  @@map("contacts")
+}
+
+model Email {
+  id        String   @id @default(cuid())
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  subject   String
+  body      String
+  fromAddr  String
+  toAddr    String
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@map("emails")
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  contactId   String?
+  contact     Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  type        String   // note | call | email | meeting | task
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@map("activities")
+}
+
+model WebhookLog {
+  id         String   @id @default(cuid())
+  source     String
+  event      String
+  payload    Json
+  receivedAt DateTime @default(now())
+  processed  Boolean  @default(false)
+
+  @@map("webhook_logs")
+}
