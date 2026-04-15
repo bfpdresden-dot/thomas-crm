@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import { api, Contact, LeadStatus } from '../api/client'
 
 const STAGES: { key: LeadStatus; label: string; color: string; dot: string }[] = [
-  { key: 'new',        label: 'Neu',          color: 'bg-gray-50 border-gray-200',    dot: 'bg-gray-400' },
-  { key: 'contacted',  label: 'Kontaktiert',  color: 'bg-blue-50 border-blue-200',    dot: 'bg-blue-500' },
+  { key: 'new',        label: 'Neu',          color: 'bg-gray-50 border-gray-200',     dot: 'bg-gray-400' },
+  { key: 'contacted',  label: 'Kontaktiert',  color: 'bg-blue-50 border-blue-200',     dot: 'bg-blue-500' },
   { key: 'qualified',  label: 'Qualifiziert', color: 'bg-yellow-50 border-yellow-200', dot: 'bg-yellow-500' },
-  { key: 'won',        label: 'Gewonnen',     color: 'bg-green-50 border-green-200',  dot: 'bg-green-500' },
-  { key: 'lost',       label: 'Verloren',     color: 'bg-red-50 border-red-200',      dot: 'bg-red-400' },
 ]
+
+const PIPELINE_STATUSES: LeadStatus[] = ['new', 'contacted', 'qualified']
 
 const SOURCE_LABELS: Record<string, string> = {
   'bergmann-website': 'bergmannfinanzpartner.de',
@@ -22,14 +22,16 @@ export default function Pipeline() {
   const [loading, setLoading] = useState(true)
 
   const load = () => {
-    api.leads.list().then(setContacts).finally(() => setLoading(false))
+    api.leads.list()
+      .then(data => setContacts(data.filter(c => PIPELINE_STATUSES.includes(c.status))))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { load() }, [])
 
   const handleStatusChange = async (id: string, status: LeadStatus) => {
     await api.leads.updateStatus(id, status)
-    setContacts(prev => prev.map(c => c.id === id ? { ...c, status } : c))
+    setContacts(prev => prev.map(c => c.id === id ? { ...c, status } : c).filter(c => PIPELINE_STATUSES.includes(c.status)))
   }
 
   const byStage = (key: LeadStatus) => contacts.filter(c => c.status === key)

@@ -4,8 +4,17 @@ import { api, Contact } from '../api/client'
 
 const EMPTY_FORM = { firstName: '', lastName: '', email: '', phone: '', company: '', notes: '' }
 
+type Tab = 'all' | 'leads' | 'customers' | 'lost'
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'all',       label: 'Alle' },
+  { key: 'leads',     label: 'Leads' },
+  { key: 'customers', label: 'Kunden' },
+  { key: 'lost',      label: 'Verloren' },
+]
+
 export default function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([])
+  const [tab, setTab] = useState<Tab>('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -17,6 +26,13 @@ export default function Contacts() {
     setLoading(true)
     api.contacts.list(q).then(setContacts).finally(() => setLoading(false))
   }
+
+  const filtered = contacts.filter(c => {
+    if (tab === 'leads')     return c.status !== 'won' && c.status !== 'lost'
+    if (tab === 'customers') return c.status === 'won'
+    if (tab === 'lost')      return c.status === 'lost'
+    return true
+  })
 
   useEffect(() => { load() }, [])
 
@@ -38,7 +54,7 @@ export default function Contacts() {
 
   return (
     <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-gray-900">Contacts</h2>
         <button
           onClick={() => { setShowForm(!showForm); setForm(EMPTY_FORM) }}
@@ -46,6 +62,29 @@ export default function Contacts() {
         >
           + New Contact
         </button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t.label}
+            <span className="ml-1.5 text-xs text-gray-400">
+              {contacts.filter(c => {
+                if (t.key === 'leads')     return c.status !== 'won' && c.status !== 'lost'
+                if (t.key === 'customers') return c.status === 'won'
+                if (t.key === 'lost')      return c.status === 'lost'
+                return true
+              }).length}
+            </span>
+          </button>
+        ))}
       </div>
 
       {showForm && (
@@ -130,11 +169,11 @@ export default function Contacts() {
       <div className="bg-white rounded-lg border border-gray-200">
         {loading ? (
           <div className="p-5 text-sm text-gray-400">Laden...</div>
-        ) : contacts.length === 0 ? (
-          <div className="p-5 text-sm text-gray-400">Keine Kontakte gefunden.</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-5 text-sm text-gray-400">Keine Einträge gefunden.</div>
         ) : (
           <ul className="divide-y divide-gray-100">
-            {contacts.map(c => (
+            {filtered.map(c => (
               <li key={c.id}>
                 <Link to={`/contacts/${c.id}`} className="flex items-center px-5 py-3 hover:bg-gray-50">
                   <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-sm mr-3 flex-shrink-0">

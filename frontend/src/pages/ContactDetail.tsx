@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { api, Contact } from '../api/client'
+import { api, Contact, LeadStatus } from '../api/client'
 import EmailCompose from '../components/EmailCompose'
 
 const ACTIVITY_TYPES = ['note', 'call', 'meeting', 'task']
@@ -40,8 +40,16 @@ export default function ContactDetail() {
     }
   }
 
+  const handleConvert = async () => {
+    if (!id) return
+    await api.leads.updateStatus(id, 'won' as LeadStatus)
+    load()
+  }
+
   if (loading) return <div className="p-8 text-gray-400">Laden...</div>
   if (!contact) return <div className="p-8 text-gray-400">Kontakt nicht gefunden.</div>
+
+  const isLead = contact.status !== 'won' && contact.status !== 'lost'
 
   // Merge emails + activities into a unified timeline sorted by date
   const timeline = [
@@ -79,6 +87,23 @@ export default function ContactDetail() {
                 {contact.notes}
               </p>
             )}
+            {contact.status && (
+              <div className="mt-3">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  contact.status === 'won'  ? 'bg-green-100 text-green-700' :
+                  contact.status === 'lost' ? 'bg-red-100 text-red-600' :
+                  contact.status === 'qualified' ? 'bg-yellow-100 text-yellow-700' :
+                  contact.status === 'contacted' ? 'bg-blue-100 text-blue-700' :
+                  'bg-gray-100 text-gray-500'
+                }`}>
+                  {contact.status === 'won' ? 'Kunde' :
+                   contact.status === 'lost' ? 'Verloren' :
+                   contact.status === 'qualified' ? 'Qualifiziert' :
+                   contact.status === 'contacted' ? 'Kontaktiert' : 'Neu'}
+                </span>
+              </div>
+            )}
+
             <div className="mt-4 flex gap-2">
               <button
                 onClick={() => setShowEmail(!showEmail)}
@@ -93,6 +118,15 @@ export default function ContactDetail() {
                 Löschen
               </button>
             </div>
+
+            {isLead && (
+              <button
+                onClick={handleConvert}
+                className="mt-3 w-full bg-green-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+              >
+                Zu Kunde konvertieren
+              </button>
+            )}
           </div>
         </div>
 
