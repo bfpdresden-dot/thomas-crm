@@ -162,7 +162,9 @@ export default function ContactDetail() {
                     </span>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 truncate">{item.title}</p>
+                    <p className="text-sm text-gray-900 truncate">
+                      {'title' in item ? item.title : item.subject}
+                    </p>
                     {'description' in item && item.description && (
                       <p className="text-xs text-gray-500 mt-0.5">{item.description}</p>
                     )}
