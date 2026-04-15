@@ -5,6 +5,8 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'won' | 'lost'
+
 export interface Contact {
   id: string
   firstName: string
@@ -13,6 +15,8 @@ export interface Contact {
   phone?: string
   company?: string
   notes?: string
+  status: LeadStatus
+  source?: string
   createdAt: string
   updatedAt: string
   _count?: { emails: number; activities: number }
@@ -76,6 +80,11 @@ export const api = {
   webhooks: {
     logs: (source?: string) =>
       client.get<WebhookLog[]>('/webhooks/logs', { params: source ? { source } : undefined }).then(r => r.data),
+  },
+  leads: {
+    list: () => client.get<Contact[]>('/leads').then(r => r.data),
+    updateStatus: (id: string, status: LeadStatus) =>
+      client.patch<Contact>(`/leads/${id}/status`, { status }).then(r => r.data),
   },
 }
 

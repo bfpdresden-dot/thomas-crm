@@ -6,6 +6,7 @@ import contactsRouter from './routes/contacts'
 import emailsRouter from './routes/emails'
 import activitiesRouter from './routes/activities'
 import webhooksRouter from './routes/webhooks'
+import leadsRouter from './routes/leads'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/api/contacts', contactsRouter)
 app.use('/api/emails', emailsRouter)
 app.use('/api/activities', activitiesRouter)
 app.use('/api/webhooks', webhooksRouter)
+app.use('/api/leads', leadsRouter)
 
 // Serve frontend in production (backend serves the built React app)
 if (process.env.NODE_ENV === 'production') {

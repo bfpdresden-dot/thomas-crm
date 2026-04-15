@@ -2,6 +2,7 @@ import { Routes, Route, NavLink } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import Contacts from './pages/Contacts'
 import ContactDetail from './pages/ContactDetail'
+import Pipeline from './pages/Pipeline'
 
 export default function App() {
   return (
@@ -32,6 +33,16 @@ export default function App() {
           >
             Contacts
           </NavLink>
+          <NavLink
+            to="/pipeline"
+            className={({ isActive }) =>
+              `block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
+              }`
+            }
+          >
+            Pipeline
+          </NavLink>
         </nav>
       </aside>
       <main className="flex-1 overflow-auto">
@@ -39,6 +50,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/contacts" element={<Contacts />} />
           <Route path="/contacts/:id" element={<ContactDetail />} />
+          <Route path="/pipeline" element={<Pipeline />} />
         </Routes>
       </main>
     </div>
