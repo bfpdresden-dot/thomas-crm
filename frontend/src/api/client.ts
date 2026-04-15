@@ -86,6 +86,39 @@ export const api = {
     updateStatus: (id: string, status: LeadStatus) =>
       client.patch<Contact>(`/leads/${id}/status`, { status }).then(r => r.data),
   },
+  settings: {
+    sources: {
+      list: () => client.get<Source[]>('/settings/sources').then(r => r.data),
+      create: (data: { name: string; label: string }) =>
+        client.post<Source>('/settings/sources', data).then(r => r.data),
+      delete: (id: string) => client.delete(`/settings/sources/${id}`),
+    },
+    stages: {
+      list: () => client.get<PipelineStage[]>('/settings/stages').then(r => r.data),
+      create: (data: { key: string; label: string }) =>
+        client.post<PipelineStage>('/settings/stages', data).then(r => r.data),
+      update: (id: string, data: { label?: string; order?: number }) =>
+        client.patch<PipelineStage>(`/settings/stages/${id}`, data).then(r => r.data),
+      delete: (id: string) => client.delete(`/settings/stages/${id}`),
+    },
+  },
+}
+
+export interface Source {
+  id: string
+  name: string
+  label: string
+  createdAt: string
+}
+
+export interface PipelineStage {
+  id: string
+  key: string
+  label: string
+  order: number
+  showInPipeline: boolean
+  isWon: boolean
+  isLost: boolean
 }
 
 export default client

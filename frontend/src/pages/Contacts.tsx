@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { api, Contact } from '../api/client'
+import { api, Contact, Source } from '../api/client'
 
-const EMPTY_FORM = { firstName: '', lastName: '', email: '', phone: '', company: '', notes: '' }
+const EMPTY_FORM = { firstName: '', lastName: '', email: '', phone: '', company: '', notes: '', source: 'manual' }
 
 type Tab = 'all' | 'leads' | 'customers' | 'lost'
 const TABS: { key: Tab; label: string }[] = [
@@ -20,6 +20,7 @@ export default function Contacts() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [creating, setCreating] = useState(false)
+  const [sources, setSources] = useState<Source[]>([])
   const navigate = useNavigate()
 
   const load = (q?: string) => {
@@ -34,7 +35,10 @@ export default function Contacts() {
     return true
   })
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    api.settings.sources.list().then(setSources)
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -116,6 +120,16 @@ export default function Contacts() {
             onChange={e => setForm({ ...form, company: e.target.value })}
             className="border border-gray-300 rounded-md px-3 py-2 text-sm col-span-2"
           />
+          <select
+            value={form.source}
+            onChange={e => setForm({ ...form, source: e.target.value })}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm col-span-2"
+          >
+            {sources.map(s => (
+              <option key={s.id} value={s.name}>{s.label}</option>
+            ))}
+            {sources.length === 0 && <option value="manual">Manuell</option>}
+          </select>
           <textarea
             placeholder="Notizen"
             value={form.notes}

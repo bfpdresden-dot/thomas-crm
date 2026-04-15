@@ -51,6 +51,27 @@ model Activity {
   @@map("activities")
 }
 
+model PipelineStage {
+  id             String  @id @default(cuid())
+  key            String  @unique  // new | contacted | qualified | won | lost
+  label          String           // Neu | Kontaktiert | ...
+  order          Int              // Reihenfolge
+  showInPipeline Boolean @default(true)  // false = won/lost (verschwinden aus Pipeline)
+  isWon          Boolean @default(false)
+  isLost         Boolean @default(false)
+
+  @@map("pipeline_stages")
+}
+
+model Source {
+  id        String   @id @default(cuid())
+  name      String   @unique  // interner key: bergmann-website
+  label     String            // Anzeigename: bergmannfinanzpartner.de
+  createdAt DateTime @default(now())
+
+  @@map("sources")
+}
+
 model WebhookLog {
   id         String   @id @default(cuid())
   source     String
