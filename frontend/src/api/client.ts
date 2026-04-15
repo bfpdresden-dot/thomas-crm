@@ -58,7 +58,7 @@ export const api = {
     list: (search?: string) =>
       client.get<Contact[]>('/contacts', { params: search ? { search } : undefined }).then(r => r.data),
     get: (id: string) => client.get<Contact>(`/contacts/${id}`).then(r => r.data),
-    create: (data: Omit<Contact, 'id' | 'createdAt' | 'updatedAt' | '_count' | 'emails' | 'activities'>) =>
+    create: (data: Omit<Contact, 'id' | 'createdAt' | 'updatedAt' | '_count' | 'emails' | 'activities' | 'status'>) =>
       client.post<Contact>('/contacts', data).then(r => r.data),
     update: (id: string, data: Partial<Contact>) =>
       client.patch<Contact>(`/contacts/${id}`, data).then(r => r.data),
